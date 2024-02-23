@@ -5,8 +5,8 @@ import 'plural_rules.dart';
 import 'translations.dart';
 
 class Localization {
-  Translations? _translations, _fallbackTranslations;
-  late Locale _locale;
+  Translations? translations, fallbackTranslations;
+  late Locale locale;
 
   final RegExp _replaceArgRegex = RegExp('{}');
   final RegExp _linkKeyMatcher =
@@ -31,10 +31,19 @@ class Localization {
     Translations? translations,
     Translations? fallbackTranslations,
   }) {
-    instance._locale = locale;
-    instance._translations = translations;
-    instance._fallbackTranslations = fallbackTranslations;
+    instance.locale = locale;
+    instance.translations = translations;
+    instance.fallbackTranslations = fallbackTranslations;
     return translations == null ? false : true;
+  }
+
+  static bool reload({
+        Translations? newTranslations,
+        Translations? newFallbackTranslations,
+      }) {
+    instance.translations = newTranslations;
+    instance.fallbackTranslations = newFallbackTranslations;
+    return newTranslations == null ? false : true;
   }
 
   String tr(
@@ -137,7 +146,7 @@ class Localization {
 
     late String res;
 
-    final pluralRule = _pluralRule(_locale.languageCode, value);
+    final pluralRule = _pluralRule(locale.languageCode, value);
     final pluralCase = pluralRule != null ? pluralRule() : _pluralCaseFallback(value);
 
     switch (pluralCase) {
@@ -181,7 +190,7 @@ class Localization {
     if (subKey == 'other') return _resolve('$key.other');
 
     final tag = '$key.$subKey';
-    var resource = _resolve(tag, logging: false, fallback: _fallbackTranslations != null);
+    var resource = _resolve(tag, logging: false, fallback: fallbackTranslations != null);
     if (resource == tag) {
       resource = _resolve('$key.other');
     }
@@ -189,15 +198,15 @@ class Localization {
   }
 
   String _resolve(String key, {bool logging = true, bool fallback = true}) {
-    var resource = _translations?.get(key);
+    var resource = instance.translations?.get(key);
     if (resource == null) {
       if (logging) {
         EasyLocalization.logger.warning('Localization key [$key] not found');
       }
-      if (_fallbackTranslations == null || !fallback) {
+      if (fallbackTranslations == null || !fallback) {
         return key;
       } else {
-        resource = _fallbackTranslations?.get(key);
+        resource = fallbackTranslations?.get(key);
         if (resource == null) {
           if (logging) {
             EasyLocalization.logger
@@ -211,6 +220,6 @@ class Localization {
   }
 
   bool exists(String key){
-    return _translations?.get(key) != null;
+    return translations?.get(key) != null;
   }
 }

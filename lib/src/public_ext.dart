@@ -169,6 +169,9 @@ extension BuildContextEasyLocalizationExtension on BuildContext {
   /// Reset locale to platform locale
   Future<void> resetLocale() => EasyLocalization.of(this)!.resetLocale();
 
+  /// Reload translations
+  Future<void> reloadTranslations() => EasyLocalization.of(this)!.reloadTranslations();
+
   /// An extension method for translating your language keys.
   /// Subscribes the widget on current [Localization] that provided from context.
   /// Throws exception if [Localization] was not found.
